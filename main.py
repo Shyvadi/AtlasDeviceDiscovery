@@ -1,11 +1,14 @@
-import socket, subprocess, json  # for connecting
+import socket, subprocess, json, os  # for connecting
 
+# WINDOWS BY DEFAULT (I've added the ability to run on linux below)
+# Made by Shyvadi - 2022-07-09
 # Discovery Tool for Atlas Devices, writes to two files:
 # IP addresses (DeviceIP.txt)
 # IP addreses + Names (DeviceNameIP.txt)
+# Make sure adb is in path for windows users.
 
-host = "192.168.0."  # Fill in local IP Here
-port = 5555
+host = "192.168.0."  # Fill in local IP Here without ending number
+port = 5555  # Atlas port
 f = open("DeviceIP.txt", "w")
 x = open("DeviceNameIP.txt", "w")
 
@@ -31,9 +34,14 @@ def is_port_open(host, port):
         return True
 
 
+# subprocess is windows only, change to os.system if needed
 def write_devicename(hostport):
+
     subprocess.call("adb connect "+str(hostport), shell=True)
     subprocess.call("adb -s " + str(hostport) + " pull /data/local/tmp/atlas_config.json")
+    # os.system("adb connect "+str(hostport))
+    # os.system("adb -s " + str(hostport) + " pull /data/local/tmp/atlas_config.json")
+
     with open("atlas_config.json") as jsonFile:
         jsonObject = json.load(jsonFile)
         jsonFile.close()
