@@ -1,4 +1,4 @@
-import socket, subprocess, json, os  # for connecting
+import socket, subprocess, json, os, time  # for connecting
 
 # WINDOWS BY DEFAULT (I've added the ability to run on linux below)
 # Made by Shyvadi - 2022-07-09
@@ -21,7 +21,7 @@ def is_port_open(host, port):
     s = socket.socket()
     try:
         # tries to connect to host using that port
-        s.settimeout(0.4)
+        s.settimeout(20.0)
         s.connect((host, port))
         # make timeout if you want it a little faster ( less accuracy )
 
@@ -38,7 +38,11 @@ def is_port_open(host, port):
 def write_devicename(hostport):
 
     subprocess.call("adb connect "+str(hostport), shell=True)
-    subprocess.call("adb -s " + str(hostport) + " pull /data/local/tmp/atlas_config.json")
+    try:
+        subprocess.call("adb -s " + str(hostport) + " pull /data/local/tmp/atlas_config.json")
+    except:
+        time.sleep(10)
+        subprocess.call("adb -s " + str(hostport) + " pull /data/local/tmp/atlas_config.json")
     # os.system("adb connect "+str(hostport))
     # os.system("adb -s " + str(hostport) + " pull /data/local/tmp/atlas_config.json")
 
@@ -49,7 +53,7 @@ def write_devicename(hostport):
     x.write(hostport+devicename+"\n")
 
 
-for DeviceIP in range(1, 255):
+for DeviceIP in range(100, 255):
     if is_port_open(host+str(DeviceIP), port):
         print(f"[+] {host+str(DeviceIP)}:{port} is open      ")
         f.write(host + str(DeviceIP) + ":" + str(port) + "\n")
